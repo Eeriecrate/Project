@@ -5,7 +5,7 @@ function love.load()
 	Arrows = love.graphics.newFont("Font.ttf",15);
 	love.graphics.setBackgroundColor(40,43,42);
 	newEnemy_Cooldown = 5.0;
-	maxFamily = 1000;
+	maxFamily = 5;
 	minFamily = 0;
 	mathFunctions = require("mathfunctions");
 	Questions = {}
@@ -15,7 +15,11 @@ function love.load()
 	Questions[2] = {};
 	Questions[2].First = 0;
 	Questions[2].Second = 0;
-
+	Ambience = love.audio.newSource("Sounds/Ambience.wav");
+	Ambience:setVolume(0.15);
+	Ambience:setLooping(true);
+	Swerve = love.audio.newSource("Sounds/Swerve.wav");
+	Swerve:setVolume(5);
 	LArrow = love.graphics.newImage("Images/LeftArrow.png");
 	RArrow = love.graphics.newImage("Images/RightArrow.png");
 	Car = love.graphics.newImage("Images/PlayerCar.png");
@@ -139,6 +143,7 @@ function love.mousepressed(x,y,button)
 			Enemies = {};
 			newEnemy_Cooldown = 5.0;
 			setQuestions();
+			Ambience:play();
 			Score = 0.0;
 			Started = true;
 		end
@@ -152,6 +157,7 @@ function isTouching()
 			v.Touched = true;
 			Started = false;
 			hasFound = true;
+			Ambience:stop();
 		else
 			v.Touched = false;
 		end
@@ -192,17 +198,21 @@ function changeLane(key)
 		if Player.Lane == "Middle" then
 			Player.LastLane = "Middle"
 			Player.Lane = "Left";
+			Swerve:play();
 		elseif Player.Lane == "Right" then
 			Player.LastLane = "Right";
 			Player.Lane = "Middle";
+			Swerve:play();
 		end
 	elseif key == "right" then
 		if Player.Lane == "Middle" then
 			Player.LastLane = "Middle"
 			Player.Lane = "Right";
+			Swerve:play();
 		elseif Player.Lane == "Left" then
 			Player.LastLane = "Left";
 			Player.Lane = "Middle";
+			Swerve:play();
 		end
 	end
 end
@@ -292,9 +302,9 @@ function love.draw()
 	local Angle = mathFunctions.getAngleTo(mathFunctions.packageLocation(Player.Position.X+(75/2),Player.Position.Y+(125/2)),mathFunctions.packageLocation(200,0));
 	local SX = Player.Position.X + (math.cos(Angle) * 40)*-1;
 	if Player.Position.X == Lanes.Middle then
-		SY = Player.Position.Y + (math.sin(Angle) * 10)*1;
+		SY = Player.Position.Y + (math.sin(Angle) * 20)*1;
 	else
-		SY = Player.Position.Y + (math.sin(Angle) * 10)*-1;
+		SY = Player.Position.Y + (math.sin(Angle) * 20)*-1;
 	end
 	love.graphics.draw(Player.Image,SX,SY);
 	love.graphics.setColor(255,255,255);
@@ -320,5 +330,4 @@ function love.draw()
 	love.graphics.rectangle("fill",Scoreb.Position.X,Scoreb.Position.Y,Scoreb.Size.X,Scoreb.Size.Y);
 	love.graphics.setColor(0,0,0);
 	love.graphics.print(math.floor(Score),(Scoreb.Position.X+(Scoreb.Size.X/2))-love.graphics.getFont():getWidth(math.floor(Score))/2,Scoreb.Position.Y+4);
-	love.window.setTitle(love.timer.getFPS( ))
 end
